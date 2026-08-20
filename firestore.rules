@@ -1,0 +1,233 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ══════════════════════════
+    // FONCTIONS UTILITAIRES
+    // ══════════════════════════
+
+    function estConnecte() {
+      return request.auth != null;
+    }
+
+    function getProfil() {
+      return get(/databases/$(database)/documents/utilisateurs/$(request.auth.uid)).data;
+    }
+
+    function estSuperAdmin() {
+      return estConnecte() && getProfil().role == 'super_admin';
+    }
+
+    function estAdmin() {
+      return estConnecte() && getProfil().role in ['super_admin', 'admin'];
+    }
+
+    function estStaff() {
+      return estConnecte() && getProfil().role in [
+        'super_admin','admin','responsable',
+        'caissier','operateur','graphiste','livreur'
+      ];
+    }
+
+    function estActif() {
+      return estConnecte() && getProfil().actif == true;
+    }
+
+    function aPermission(perm) {
+      let p = getProfil();
+      if (p.role == 'super_admin') return true;
+      let permsRole    = [];
+      let permsExtra   = p.permissionsExtra   != null ? p.permissionsExtra   : [];
+      let permsRetirees = p.permissionsRetirees != null ? p.permissionsRetirees : [];
+      return estConnecte() && permsExtra.hasAny([perm]) && !permsRetirees.hasAny([perm]);
+    }
+
+    // ══════════════════════════
+    // RÈGLES
+    // ══════════════════════════
+
+    // Config entreprise
+    match /entreprise/{doc} {
+      allow read:  if true;
+      allow write: if estAdmin() && estActif();
+    }
+
+    // Paramètres
+    match /parametres/{doc} {
+      allow read:  if estConnecte();
+      allow write: if estAdmin() && estActif();
+    }
+
+    // Domaines (lecture publique pour le catalogue)
+    match /domaines/{domaineId} {
+      allow read:   if true;
+      allow create: if estAdmin() && estActif();
+      allow update: if estStaff() && estActif();
+      allow delete: if estSuperAdmin();
+    }
+
+    // Boutiques
+    match /boutiques/{boutiqueId} {
+      allow read:   if estConnecte();
+      allow create: if estAdmin() && estActif();
+      allow update: if estStaff() && estActif();
+      allow delete: if estSuperAdmin();
+    }
+
+    // Utilisateurs
+    match /utilisateurs/{userId} {
+      allow read: if estConnecte() && (
+        request.auth.uid == userId || estStaff()
+      );
+      allow create: if estConnecte() && (
+        request.auth.uid == userId || estAdmin()
+      );
+      allow update: if estConnecte() && (
+        (request.auth.uid == userId) || estAdmin()
+      );
+      allow delete: if estSuperAdmin();
+    }
+
+    // Produits (lecture publique pour catalogue)
+    match /produits/{produitId} {
+      allow read:   if true;
+      allow create: if estStaff() && estActif();
+      allow update: if estStaff() && estActif();
+      allow delete: if estAdmin() && estActif();
+    }
+
+    // Services
+    match /services/{serviceId} {
+      allow read:   if true;
+      allow create: if estStaff() && estActif();
+      allow update: if estStaff() && estActif();
+      allow delete: if estAdmin() && estActif();
+    }
+
+    // Clients
+    match /clients/{clientId} {
+      allow read: if estConnecte() && (
+        estStaff() || resource.data.userId == request.auth.uid
+      );
+      allow create: if estConnecte() && estActif();
+      allow update: if estConnecte() && estActif() && (
+        estStaff() || resource.data.userId == request.auth.uid
+      );
+      allow delete: if estAdmin() && estActif();
+    }
+
+    // Partenaires
+    match /partenaires/{partId} {
+      allow read:   if estStaff() && estActif();
+      allow write:  if estStaff() && estActif();
+      allow delete: if estAdmin() && estActif();
+    }
+
+    // Commandes
+    match /commandes/{cmdId} {
+      allow read: if estConnecte() && (
+        estStaff() ||
+        resource.data.clientId == request.auth.uid
+      );
+      allow create: if estConnecte() && estActif() && (
+        request.resource.data.keys().hasAll(['clientNom','lignes','montantTotal','statut'])
+      );
+      allow update: if estConnecte() && estActif() && (
+        estStaff() || (
+          resource.data.clientId == request.auth.uid &&
+          request.resource.data.statut == resource.data.statut
+        )
+      );
+      allow delete: if estAdmin() && estActif();
+    }
+
+    // Factures
+    match /factures/{factId} {
+      allow read: if estConnecte() && (
+        estStaff() || resource.data.clientId == request.auth.uid
+      );
+      allow create: if estStaff() && estActif();
+      allow update: if estStaff() && estActif();
+      allow delete: if estSuperAdmin();
+    }
+
+    // Devis
+    match /devis/{devisId} {
+      allow read: if estConnecte() && (
+        estStaff() || resource.data.clientId == request.auth.uid
+      );
+      allow create: if estStaff() && estActif();
+      allow update: if estStaff() && estActif();
+      allow delete: if estAdmin() && estActif();
+    }
+
+    // Paiements
+    match /paiements/{paiId} {
+      allow read:   if estStaff() && estActif();
+      allow create: if estStaff() && estActif();
+      allow update: if estAdmin() && estActif();
+      allow delete: if estSuperAdmin();
+    }
+
+    // Stock
+    match /stock/{stockId} {
+      allow read:  if estStaff() && estActif();
+      allow write: if estStaff() && estActif();
+    }
+
+    match /mouvements_stock/{mvtId} {
+      allow read:          if estStaff() && estActif();
+      allow create:        if estStaff() && estActif();
+      allow update, delete: if estAdmin() && estActif();
+    }
+
+    // Achats
+    match /achats/{achatId} {
+      allow read:   if estStaff() && estActif();
+      allow create: if estStaff() && estActif();
+      allow update: if estAdmin() && estActif();
+      allow delete: if estSuperAdmin();
+    }
+
+    // Dépenses
+    match /depenses/{depId} {
+      allow read:   if estStaff() && estActif();
+      allow create: if estStaff() && estActif();
+      allow update: if estAdmin() && estActif();
+      allow delete: if estSuperAdmin();
+    }
+
+    // Audit (protégé — jamais modifiable)
+    match /audit/{auditId} {
+      allow read:          if estAdmin() && estActif();
+      allow create:        if estConnecte() && estActif();
+      allow update, delete: if false;
+    }
+
+    // Notifications
+    match /notifications/{notifId} {
+      allow read: if estConnecte() && (
+        resource.data.destinataires.hasAny([request.auth.uid])
+      );
+      allow create: if estStaff() && estActif();
+      allow update: if estConnecte() && (
+        resource.data.destinataires.hasAny([request.auth.uid])
+      );
+      allow delete: if estAdmin() && estActif();
+    }
+
+    // Paniers clients
+    match /paniers/{panierId} {
+      allow read, write: if estConnecte() && (
+        resource == null || resource.data.userId == request.auth.uid
+      );
+    }
+
+    // Sauvegardes
+    match /sauvegardes/{savId} {
+      allow read:   if estAdmin() && estActif();
+      allow create: if estAdmin() && estActif();
+      allow delete: if estSuperAdmin();
+    }
+  }
+}

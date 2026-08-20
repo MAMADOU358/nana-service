@@ -1,0 +1,148 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "produits",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "actif", "order": "ASCENDING" },
+        { "fieldPath": "visibleClient", "order": "ASCENDING" },
+        { "fieldPath": "ordre", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "produits",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "actif", "order": "ASCENDING" },
+        { "fieldPath": "gererStock", "order": "ASCENDING" },
+        { "fieldPath": "nom", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "services",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "actif", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "commandes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "statut", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "commandes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "clientId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "domaines",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "actif", "order": "ASCENDING" },
+        { "fieldPath": "ordre", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "factures",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "statut", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "clients",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "archive", "order": "ASCENDING" },
+        { "fieldPath": "nom", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "mouvements_stock",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "produitId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
+{
+  "indexes": [
+    {
+      "collectionGroup": "devis",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "statut", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "devis",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "annee", "order": "ASCENDING" },
+        { "fieldPath": "numero", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "commandes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "createdAt", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "commandes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "statut", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "produits",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "actif", "order": "ASCENDING" },
+        { "fieldPath": "visibleClient", "order": "ASCENDING" },
+        { "fieldPath": "nom", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "achats",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "annee", "order": "ASCENDING" },
+        { "fieldPath": "numero", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "depenses",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "date", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "partenaires",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "type", "order": "ASCENDING" },
+        { "fieldPath": "nom", "order": "ASCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
